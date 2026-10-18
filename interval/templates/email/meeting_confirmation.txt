@@ -1,0 +1,12 @@
+Meeting Confirmed
+
+Hello {{name}},
+
+Your meeting with {{company}} has been confirmed.
+
+Date: {{date}}
+Time: {{time}}
+Meeting Link: {{meeting_link}}
+
+Best regards,
+{{sender_name}}
