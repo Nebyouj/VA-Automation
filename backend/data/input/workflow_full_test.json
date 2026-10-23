@@ -1,0 +1,74 @@
+{
+  "name": "Full End-to-End Workflow with Inter-Job Data Sharing",
+  "cron_expression": "0 0 * * *",
+  "jobs": [
+    {
+      "key": "research",
+      "type": "research_web",
+      "priority": 10,
+      "max_attempts": 3,
+      "payload": {
+        "url": "https://example.com"
+      }
+    },
+    {
+      "key": "file_process",
+      "type": "process_file",
+      "priority": 5,
+      "max_attempts": 3,
+      "depends_on": ["research"],
+      "payload": {
+        "file_name": "workflow_research_summary.txt",
+        "operation": "write_text",
+        "content": "Title: {{research.title}}\nURL: {{research.url}}"
+      }
+    },
+    {
+      "key": "calendar",
+      "type": "create_calendar_event",
+      "priority": 5,
+      "max_attempts": 3,
+      "depends_on": ["research"],
+      "payload": {
+        "summary": "Review: {{research.title}}",
+        "description": "Notes gathered from {{research.url}}",
+        "start_time": "2026-10-21T14:00:00Z",
+        "end_time": "2026-10-21T15:00:00Z"
+      }
+    },
+    {
+      "key": "sheet_append",
+      "type": "append_sheet_rows",
+      "priority": 5,
+      "max_attempts": 3,
+      "depends_on": ["research", "calendar"],
+      "payload": {
+        "spreadsheet_id": "1xkFfuAgCzWqGWiZaxNHX0CnWi95e6sriMM-9LUzJR7s",
+        "range": "Sheet1!A:D",
+        "values": [
+          ["{{research.title}}", "{{research.url}}", "{{calendar.event_id}}", "Scheduled"]
+        ]
+      }
+    },
+    {
+      "key": "email",
+      "type": "send_email",
+      "priority": 5,
+      "max_attempts": 3,
+      "depends_on": ["calendar", "sheet_append"],
+      "payload": {
+        "to": "nebyoudamtew18@gmail.com",
+        "subject": "Confirmed: Review for {{research.title}}",
+        "template": "meeting_confirmation",
+        "variables": {
+          "name": "Nebyou",
+          "company": "{{research.title}}",
+          "date": "2026-10-21",
+          "time": "14:00 UTC",
+          "meeting_link": "https://calendar.google.com/event?eid={{calendar.event_id}}",
+          "sender_name": "Go Job Queue Engine"
+        }
+      }
+    }
+  ]
+}
