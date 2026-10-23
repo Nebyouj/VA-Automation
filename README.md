@@ -1,4 +1,4 @@
-# Go Background Job Queue
+# Go Background Job Queue (VA Automation)
 
 A background job processing system built with Go, designed to execute asynchronous tasks reliably, manage job priorities, and persist job state using PostgreSQL.
 
